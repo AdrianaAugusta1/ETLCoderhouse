@@ -1,4 +1,4 @@
-import requests
+import requests  "dei um pip install notify e pip install requests"
 from notifypy import Notify
 
 def alerta(mensagem): """alertas usando Notify."""
@@ -19,7 +19,7 @@ def fetch_data(url): """obtendo os dados da API"""
 # URLs da PokeAPI
 base_url = "https://pokeapi.co/api/v2/pokemon"
 
-# Tabela 1: Lista de Pokémon
+'''Pegando os dados das tabelas - Tabela 1: Lista de Pokémon'''
 def get_pokemon_list(limit=10):
     data = fetch_data(f"{base_url}?limit={limit}")
     if data:
@@ -27,7 +27,7 @@ def get_pokemon_list(limit=10):
         return pokemons
     return []
 
-# Tabela 2: Tipos de cada Pokémon
+'''Tabela 2: Tipos de cada Pokémon'''
 def get_pokemon_types(pokemon_name):
     data = fetch_data(f"{base_url}/{pokemon_name}")
     if data:
@@ -35,7 +35,7 @@ def get_pokemon_types(pokemon_name):
         return {"name": pokemon_name, "types": types}
     return {"name": pokemon_name, "types": []}
 
-# Tabela 3: Estatísticas básicas de cada Pokémon
+'''Tabela 3: Estatísticas básicas de cada Pokémon'''
 def get_pokemon_stats(pokemon_name):
     data = fetch_data(f"{base_url}/{pokemon_name}")
     if data:
@@ -43,9 +43,9 @@ def get_pokemon_stats(pokemon_name):
         return {"name": pokemon_name, "stats": stats}
     return {"name": pokemon_name, "stats": {}}
 
-# Testando as funções
+'''Testando as funções pra ver se funcionou'''
 pokemon_list = get_pokemon_list(limit=5)
-
+'''colocando as condicionais dos alertas'''
 if not pokemon_list:
     alerta("Nenhum Pokémon encontrado. Verifique a conexão com a API.")
 else:
@@ -64,130 +64,3 @@ else:
         print(types)
         print(f"Tabela 3: Estatísticas de {pokemon['name']}")
         print(stats)
-
-
-
-import requests
-from notifypy import Notify
-
-# Função para enviar alertas em caso de erro
-def alerta(mensagem):
-    """
-    Envia notificações de alerta usando a biblioteca Notify.
-    """
-    notification = Notify()
-    notification.title = "Alerta"
-    notification.message = mensagem
-    notification.send()
-
-# Função para realizar requisições à API
-def fetch_data(url):
-    """
-    Faz requisições para a API fornecida e retorna os dados no formato JSON.
-    
-    Parâmetros:
-    - url (str): URL do endpoint da API.
-
-    Retorno:
-    - dict: Dados retornados pela API em formato JSON.
-    """
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Verifica se o status da resposta é 200 (OK)
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        alerta(f"Erro ao acessar a API: {e}")
-        return None
-
-# Configuração da URL base da PokeAPI
-BASE_URL = "https://pokeapi.co/api/v2/pokemon"
-
-# Função para obter uma lista de Pokémon
-def get_pokemon_list(limit=10):
-    """
-    Obtém uma lista de Pokémon com base no limite fornecido.
-
-    Parâmetros:
-    - limit (int): Número máximo de Pokémon a serem retornados.
-
-    Retorno:
-    - list: Lista de dicionários com ID e nome de cada Pokémon.
-    """
-    data = fetch_data(f"{BASE_URL}?limit={limit}")
-    if data:
-        return [{"id": p["url"].split("/")[-2], "name": p["name"]} for p in data["results"]]
-    return []
-
-# Função para obter os tipos de um Pokémon específico
-def get_pokemon_types(pokemon_name):
-    """
-    Retorna os tipos de um Pokémon específico.
-
-    Parâmetros:
-    - pokemon_name (str): Nome do Pokémon.
-
-    Retorno:
-    - dict: Dicionário com o nome do Pokémon e sua lista de tipos.
-    """
-    data = fetch_data(f"{BASE_URL}/{pokemon_name}")
-    if data:
-        types = [t["type"]["name"] for t in data["types"]]
-        return {"name": pokemon_name, "types": types}
-    return {"name": pokemon_name, "types": []}
-
-# Função para obter as estatísticas básicas de um Pokémon
-def get_pokemon_stats(pokemon_name):
-    """
-    Retorna as estatísticas básicas de um Pokémon específico.
-
-    Parâmetros:
-    - pokemon_name (str): Nome do Pokémon.
-
-    Retorno:
-    - dict: Dicionário com o nome do Pokémon e suas estatísticas.
-    """
-    data = fetch_data(f"{BASE_URL}/{pokemon_name}")
-    if data:
-        stats = {stat["stat"]["name"]: stat["base_stat"] for stat in data["stats"]}
-        return {"name": pokemon_name, "stats": stats}
-    return {"name": pokemon_name, "stats": {}}
-
-# Pipeline de execução para obter e exibir os dados
-def main():
-    """
-    Função principal para execução do pipeline:
-    - Obtém uma lista de Pokémon.
-    - Para cada Pokémon, coleta tipos e estatísticas.
-    """
-    pokemon_list = get_pokemon_list(limit=5)
-
-    if not pokemon_list:
-        alerta("Nenhum Pokémon encontrado. Verifique a conexão com a API.")
-        return
-
-    print("Tabela 1: Lista de Pokémon")
-    for pokemon in pokemon_list:
-        print(f"- ID: {pokemon['id']}, Nome: {pokemon['name']}")
-
-    for pokemon in pokemon_list:
-        # Obtemos os tipos
-        types = get_pokemon_types(pokemon["name"])
-        if not types["types"]:
-            alerta(f"Erro ao buscar tipos do Pokémon {pokemon['name']}.")
-
-        # Obtemos as estatísticas
-        stats = get_pokemon_stats(pokemon["name"])
-        if not stats["stats"]:
-            alerta(f"Erro ao buscar estatísticas do Pokémon {pokemon['name']}.")
-
-        # Exibimos os dados
-        print(f"\nTabela 2: Tipos de {pokemon['name']}")
-        print(types["types"])
-
-        print(f"Tabela 3: Estatísticas de {pokemon['name']}")
-        print(stats["stats"])
-
-# Executa o pipeline
-if __name__ == "__main__":
-    main()
-
