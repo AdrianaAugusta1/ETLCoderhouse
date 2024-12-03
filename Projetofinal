@@ -1,4 +1,4 @@
-import requests  "dei um pip install notify e pip install requests"
+import requests  '''dei um pip install notify e pip install requests'''
 from notifypy import Notify
 
 def alerta(mensagem): """alertas usando Notify."""
@@ -64,3 +64,68 @@ else:
         print(types)
         print(f"Tabela 3: Estatísticas de {pokemon['name']}")
         print(stats)
+
+'''Tratando as Bases - Segunda parte do projeto'''
+import pandas as pd
+# Criando as tabelas com listas e dicionários
+pokemon_list = [
+    {"id": 1, "name": "bulbasaur"},
+    {"id": 2, "name": "ivysaur"},
+    {"id": 3, "name": "venusaur"},
+]
+
+pokemon_types = [
+    {"name": "bulbasaur", "types": ["grass", "poison"]},
+    {"name": "ivysaur", "types": ["grass", "poison"]},
+    {"name": "venusaur", "types": ["grass", "poison"]},
+]
+
+pokemon_stats = [
+    {"name": "bulbasaur", "stats": {"hp": 45, "attack": 49, "defense": 49}},
+    {"name": "ivysaur", "stats": {"hp": 60, "attack": 62, "defense": 63}},
+    {"name": "venusaur", "stats": {"hp": 80, "attack": 82, "defense": 83}},
+]
+
+'''Convertendo listas de dicionários em DataFrames'''
+df_pokemon = pd.DataFrame(pokemon_list)
+df_types = pd.DataFrame(pokemon_types)
+df_stats = pd.DataFrame(pokemon_stats)
+
+'''Tratamento das Bases'''
+
+'''Ajuste de Nomes das Colunas'''
+df_pokemon.rename(columns={"id": "pokemon_id", "name": "pokemon_name"}, inplace=True)
+df_types.rename(columns={"name": "pokemon_name", "types": "pokemon_types"}, inplace=True)
+df_stats.rename(columns={"name": "pokemon_name", "stats": "pokemon_stats"}, inplace=True)
+
+'''Usando Unstack/Stack para tratamento de Dados - separando os tipos em múltiplas colunas'''
+df_types = df_types.explode("pokemon_types")
+
+'''Transformando os stats em colunas'''
+stats_expanded = df_stats["pokemon_stats"].apply(pd.Series)
+df_stats = pd.concat([df_stats.drop(columns=["pokemon_stats"]), stats_expanded], axis=1)
+
+'''Tratamento de Missing Values'''
+df_pokemon.fillna("Unknown", inplace=True)
+df_types.fillna("Unknown", inplace=True)
+df_stats.fillna(0, inplace=True)
+
+'''Tratamento de Tipos de Variáveis'''
+df_stats = df_stats.astype({"hp": int, "attack": int, "defense": int})
+
+'''Filtragem de Dados - selecionando apenas Pokémon com hp > 50'''
+df_stats_filtered = df_stats[df_stats["hp"] > 50]
+
+'''Salvando as Bases Tratadas'''
+df_pokemon.to_csv("pokemon_list.csv", index=False)
+df_types.to_csv("pokemon_types.csv", index=False)
+df_stats_filtered.to_csv("pokemon_stats_filtered.csv", index=False)
+
+''' Verificando as tabelas tratadas'''
+print("Tabela Pokémon:")
+print(df_pokemon.head())
+print("\nTabela Tipos:")
+print(df_types.head())
+print("\nTabela Estatísticas Filtradas:")
+print(df_stats_filtered.head())
+
