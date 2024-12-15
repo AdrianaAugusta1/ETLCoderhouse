@@ -1,0 +1,96 @@
+# Importando as bibliotecas necessárias
+import requests
+from notifypy import Notify
+import pandas as pd
+import sqlite3
+
+# Função para exibir alertas usando Notify
+def alerta(mensagem):  
+    notification = Notify()
+    notification.title = "Alerta"
+    notification.message = mensagem
+    notification.send()
+
+# Função para buscar dados da API
+# Os dados estão sendo extraídos diretamente da API
+def fetch_data(url):  
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Avisar se o status não for 200
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        alerta(f"Erro ao acessar a API: {e}")
+        return None
+
+# Funções para construir as tabelas a partir da API
+base_url = "https://pokeapi.co/api/v2/pokemon"
+
+def get_pokemon_list(limit=20):
+    data = fetch_data(f"{base_url}?limit={limit}")
+    if data:
+        pokemons = [{"id": int(p["url"].split("/")[-2]), "name": p["name"]} for p in data["results"]]
+        return pokemons
+    return []
+
+def get_pokemon_types(pokemon_id):
+    data = fetch_data(f"{base_url}/{pokemon_id}")
+    if data:
+        types = [t["type"]["name"] for t in data["types"]]
+        return types
+    return []
+
+def get_pokemon_stats(pokemon_id):
+    data = fetch_data(f"{base_url}/{pokemon_id}")
+    if data:
+        stats = {stat["stat"]["name"]: stat["base_stat"] for stat in data["stats"]}
+        return stats
+    return {}
+
+# Obtendo dados dos pokémons 
+#Aumentei o número de Pokémons para 20
+pokemon_list = get_pokemon_list(limit=20)
+if not pokemon_list:
+    alerta("Nenhum pokémon encontrado. Verifique a conexão com a API.")
+else:
+    # Construindo tabelas a partir dos dados
+    pokemon_data = []
+    types_data = []
+    stats_data = []
+
+    for pokemon in pokemon_list:
+        pokemon_id = pokemon["id"]
+        pokemon_name = pokemon["name"]
+
+        # Obtendo tipos e estatísticas
+        types = get_pokemon_types(pokemon_id)
+        stats = get_pokemon_stats(pokemon_id)
+
+        # Adicionando dados às tabelas 
+# A tabela de tipos agora possui type_1 e type_2
+        pokemon_data.append({"pokemon_id": pokemon_id, "pokemon_name": pokemon_name})
+        types_data.append({"pokemon_id": pokemon_id, "type_1": types[0] if len(types) > 0 else None, 
+                           "type_2": types[1] if len(types) > 1 else None})
+        stats_data.append({"pokemon_id": pokemon_id, **stats})
+
+    # Convertendo listas para DataFrames
+    df_pokemon = pd.DataFrame(pokemon_data)
+    df_types = pd.DataFrame(types_data)
+    df_stats = pd.DataFrame(stats_data)
+
+    # Unificando tabelas 
+# Foi criada uma tabela unificada a partir das três tabelas geradas
+    df_combined = pd.merge(df_pokemon, df_types, on="pokemon_id")
+    df_combined = pd.merge(df_combined, df_stats, on="pokemon_id")
+
+    # Exportando para um arquivo .db
+# Os dados são salvos em um banco SQLite e formato .db
+    conn = sqlite3.connect("pokemon_data.db")
+    df_pokemon.to_sql("pokemon", conn, if_exists="replace", index=False)
+    df_types.to_sql("types", conn, if_exists="replace", index=False)
+    df_stats.to_sql("stats", conn, if_exists="replace", index=False)
+    df_combined.to_sql("combined", conn, if_exists="replace", index=False)
+    conn.close()
+
+    # Exibindo os resultados
+    print("Tabela unificada:")
+    print(df_combined.head())
