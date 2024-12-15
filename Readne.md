@@ -59,7 +59,6 @@ Código
 ---
 
 ### 9. **Execução do Código**
-- O código foi testado e validado localmente.
 - Pode ser executado diretamente em um ambiente Python com as dependências instaladas.
 
 ---
@@ -118,16 +117,3 @@ Exemplo de saída de dados:
 - Dados foram normalizados e validados.
 - Tipos foram separados corretamente.
 - Estatísticas foram filtradas e apresentadas no formato adequado.
-
----
-
-## **Média**
-- O código e a documentação atendem aos critérios de avaliação:
-  - Estrutura lógica.
-  - Tratamento de dados a partir da API.
-  - Exportação em `.db`.
-  - Documentação clara e organizada.
-
----
-
-Essa documentação pode ser salva em um arquivo `README.md` e enviada junto ao projeto. Se precisar de mais ajustes, é só avisar! 😊
