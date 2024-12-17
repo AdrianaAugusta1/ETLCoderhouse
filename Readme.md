@@ -20,7 +20,7 @@ As bibliotecas utilizadas no projeto são:
 - sqlite3: Criação e manipulação do banco de dados SQLite.  
 - notifypy: Gera alertas visuais ao usuário.  
 
-## 3. Organização do Código*
+## 3. Organização do Código
 O projeto está dividido em três etapas principais, seguindo o conceito ETL:  
 1. Extração: Coleta de dados da API.  
 2. Transformação: Manipulação dos dados (normalização, separação e filtragem).  
