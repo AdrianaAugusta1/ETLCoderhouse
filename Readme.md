@@ -28,7 +28,7 @@ O projeto está dividido em três etapas principais, seguindo o conceito ETL:
 
 ## 4. Funções
 
-### **fetch_data(url)  
+### fetch_data(url)  
 - Entrada: `url` (string) - URL do endpoint da API.  
 - Saída: Retorna os dados JSON extraídos da API ou `None` em caso de erro.  
 - Objetivo: Função genérica para buscar dados em uma URL da API.  
